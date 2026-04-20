@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyAssist Premium</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#1a1f4d,#2b2f77);
+height:100vh;
+color:white;
+}
+
+.container{
+padding:20px;
+}
+
+.header{
+background:white;
+color:black;
+padding:20px;
+border-radius:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.logo{
+font-size:22px;
+font-weight:bold;
+}
+
+.main{
+display:flex;
+margin-top:20px;
+gap:20px;
+}
+
+.chat-card{
+flex:2;
+background:#fff;
+color:black;
+border-radius:20px;
+display:flex;
+flex-direction:column;
+overflow:hidden;
+}
+
+.chat-header{
+padding:20px;
+background:linear-gradient(90deg,#6c63ff,#8e7bff);
+color:white;
+font-weight:bold;
+}
+
+.chat-box{
+flex:1;
+padding:20px;
+overflow-y:auto;
+background:#f5f6fa;
+}
+
+.message{
+padding:12px;
+border-radius:10px;
+margin-bottom:10px;
+max-width:70%;
+}
+
+.user{
+background:#6c63ff;
+color:white;
+margin-left:auto;
+}
+
+.assistant{
+background:#e4e6ff;
+}
+
+.input-area{
+display:flex;
+padding:15px;
+border-top:1px solid #ddd;
+}
+
+input{
+flex:1;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+button{
+padding:12px 18px;
+border:none;
+margin-left:10px;
+border-radius:10px;
+background:#6c63ff;
+color:white;
+cursor:pointer;
+}
+
+.side-card{
+flex:1;
+background:white;
+color:black;
+border-radius:20px;
+padding:20px;
+height:400px;
+}
+
+/* typing dots animation */
+
+.dot{
+animation: blink 1.4s infinite;
+font-size:20px;
+}
+
+.dot:nth-child(2){
+animation-delay:0.2s
+}
+
+.dot:nth-child(3){
+animation-delay:0.4s
+}
+
+@keyframes blink{
+0%{opacity:0}
+50%{opacity:1}
+100%{opacity:0}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<div class="logo">SkyAssist Premium</div>
+<div>24/7 Available</div>
+</div>
+
+<div class="main">
+
+<div class="chat-card">
+
+<div class="chat-header">
+Sophia - AI Agent
+</div>
+
+<div id="chat" class="chat-box">
+
+<div class="message assistant">
+Welcome to SkyAssist Premium! I'm Sophia, your AI assistant.
+</div>
+
+</div>
+
+<div class="input-area">
+<input id="messageInput" placeholder="Type your message...">
+<button onclick="sendMessage()">Send</button>
+</div>
+
+</div>
+
+<div class="side-card">
+<h3>Your Trip</h3>
+<p>Start conversation to see booking details</p>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+// Enter send
+
+document.getElementById("messageInput").addEventListener("keypress", function(e){
+if(e.key === "Enter"){
+sendMessage()
+}
+})
+
+async function sendMessage(){
+
+const input = document.getElementById("messageInput")
+const chat = document.getElementById("chat")
+
+let message = input.value
+
+if(!message) return
+
+addUserMessage(message)
+
+input.value = ""
+
+showTyping()
+
+try{
+
+let response = await fetch(
+"/api/chat?msg=" + encodeURIComponent(message)
+)
+
+let data = await response.json()
+
+removeTyping()
+
+typeWriter(data.response)
+
+}catch(e){
+
+removeTyping()
+addBotMessage("Server Error — Backend not connected")
+
+}
+
+}
+
+function addUserMessage(text){
+
+const chat = document.getElementById("chat")
+
+chat.innerHTML += `
+<div class="message user">
+${text}
+</div>
+`
+
+chat.scrollTop = chat.scrollHeight
+
+}
+
+function addBotMessage(text){
+
+const chat = document.getElementById("chat")
+
+chat.innerHTML += `
+<div class="message assistant">
+${text}
+</div>
+`
+
+chat.scrollTop = chat.scrollHeight
+
+}
+
+function showTyping(){
+
+const chat = document.getElementById("chat")
+
+chat.innerHTML += `
+<div class="message assistant" id="typing">
+<span class="dot">.</span>
+<span class="dot">.</span>
+<span class="dot">.</span>
+</div>
+`
+
+chat.scrollTop = chat.scrollHeight
+
+}
+
+function removeTyping(){
+
+const typing = document.getElementById("typing")
+
+if(typing) typing.remove()
+
+}
+
+function typeWriter(text){
+
+const chat = document.getElementById("chat")
+
+const div = document.createElement("div")
+div.className = "message assistant"
+chat.appendChild(div)
+
+let i = 0
+
+function typing(){
+
+if(i < text.length){
+
+div.innerHTML += text.charAt(i)
+
+i++
+
+chat.scrollTop = chat.scrollHeight
+
+setTimeout(typing,15)
+
+}
+
+}
+
+typing()
+
+}
+
+</script>
+
+</body>
+</html>
