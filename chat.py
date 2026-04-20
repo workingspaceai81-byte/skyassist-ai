@@ -12,13 +12,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+API_KEY = "sk-1e64d7e4d14643fea79e02e564f6b05a"
+
 @app.get("/api/chat")
 def chat(msg: str):
 
     response = requests.post(
         "https://api.deepseek.com/chat/completions",
         headers={
-            "Authorization": "Bearer YOUR_API_KEY",
+            "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json"
         },
         json={
