@@ -18,7 +18,7 @@ API_KEY = os.getenv("API_KEY")
 def home():
     return {"status": "running"}
 
-@app.get("/chat")
+@app.get("/api/chat")
 def chat(msg: str):
 
     response = requests.post(
